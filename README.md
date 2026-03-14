@@ -94,9 +94,3 @@ From the app, export:
 - JSON report from Metrics (Export JSON)
 - CSV attempts dataset from Metrics (Export CSV)
 
-## Current status
-
-Implementation is complete through Phase 3:
-- Phase 1: rebrand + UI redesign + grounding foundation
-- Phase 2: diagnostics + remediation + measurable pre/post outcomes
-- Phase 3: confidence calibration + attempt timeline + judge exports
