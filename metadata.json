@@ -1,0 +1,5 @@
+{
+  "name": "Concepta",
+  "description": "An intelligent workspace that transforms complex text and PDFs into clear explanations and visual infographics using Gemini models.",
+  "requestFramePermissions": []
+}

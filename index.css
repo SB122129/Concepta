@@ -1,0 +1,50 @@
+:root {
+  --concepta-cyan: #06b6d4;
+  --concepta-cyan-soft: #ecfeff;
+  --concepta-orange: #fb923c;
+  --concepta-ink: #0f172a;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: #f8fafc;
+}
+
+.concepta-surface {
+  background-color: #f8fafc;
+  background-image:
+    radial-gradient(circle at 0% 0%, rgba(6, 182, 212, 0.12), transparent 35%),
+    radial-gradient(circle at 100% 0%, rgba(251, 146, 60, 0.12), transparent 32%),
+    linear-gradient(to right, rgba(15, 23, 42, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(15, 23, 42, 0.04) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.concepta-surface.dark {
+  background-color: #020617;
+  background-image:
+    radial-gradient(circle at 10% 0%, rgba(6, 182, 212, 0.15), transparent 35%),
+    radial-gradient(circle at 90% 0%, rgba(251, 146, 60, 0.18), transparent 30%),
+    linear-gradient(to right, rgba(148, 163, 184, 0.08) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(148, 163, 184, 0.08) 1px, transparent 1px);
+}
+
+@keyframes conceptaFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: conceptaFadeIn 0.45s ease-out;
+}
