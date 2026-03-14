@@ -13,34 +13,7 @@ import { AppTab, MainView, ChatSession, ChatMessage, GroundingSource, SourceItem
 import { generateExplanation, generateVisual, verifyText, generateSimulation, editVisual, editSimulation } from './services/geminiService';
 import { retrieveLearningEvidence } from './services/learningRetrievalService';
 
-const SAMPLE_SOURCES: SourceItem[] = [
-        {
-            id: 'sample-thermo-youtube',
-            type: 'youtube',
-            title: 'Introduction to Thermodynamics',
-            metadata: 'Sample Source • YouTube',
-            isSelected: false,
-            content: 'Video Transcript Placeholder'
-        },
-        {
-            id: 'sample-thermo-pdf',
-            type: 'pdf',
-            title: 'Chapter 4: Entropy & Heat.pdf',
-            metadata: 'Sample Source • Local PDF',
-            isSelected: false,
-            content: 'PDF Text Placeholder'
-        },
-];
-
-const mergeWithSampleSources = (sources: SourceItem[]): SourceItem[] => {
-    const map = new Map(sources.map((source) => [source.id, source]));
-    for (const sample of SAMPLE_SOURCES) {
-        if (!map.has(sample.id)) {
-            map.set(sample.id, { ...sample });
-        }
-    }
-    return Array.from(map.values());
-};
+const mergeWithSampleSources = (sources: SourceItem[]): SourceItem[] => sources;
 
 const App: React.FC = () => {
     const brandName = 'Concepta';
@@ -63,7 +36,7 @@ const App: React.FC = () => {
 
   // Context & Sources
   const [lastContext, setLastContext] = useState<string>('');
-    const [sources, setSources] = useState<SourceItem[]>(SAMPLE_SOURCES.map(source => ({ ...source })));
+    const [sources, setSources] = useState<SourceItem[]>([]);
 
   // Mistakes & Quiz History
   const [mistakes, setMistakes] = useState<MistakeItem[]>([]);
