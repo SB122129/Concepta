@@ -132,7 +132,9 @@ const App: React.FC = () => {
         }
 
         const retrieval = retrieveLearningEvidence(fullContext);
-        const groundedContext = `Public Learning Evidence:\n${retrieval.contextBlock}\n\n${fullContext}`;
+        const groundedContext = retrieval.contextBlock
+            ? `Public Learning Evidence:\n${retrieval.contextBlock}\n\n${fullContext}`
+            : fullContext;
         return { retrieval, groundedContext };
     };
 

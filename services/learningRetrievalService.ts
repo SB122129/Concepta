@@ -38,9 +38,7 @@ export const retrieveLearningEvidence = (query: string, maxEntries: number = 2):
     .slice(0, maxEntries)
     .map((item) => item.entry);
 
-  const fallback = matchedEntries.length > 0 ? matchedEntries : misconceptionDataset.slice(0, 1);
-
-  const contextBlock = fallback
+  const contextBlock = matchedEntries
     .map(
       (entry) =>
         [
@@ -55,14 +53,14 @@ export const retrieveLearningEvidence = (query: string, maxEntries: number = 2):
 
   const uniqueSources = Array.from(
     new Map(
-      fallback
+      matchedEntries
         .flatMap((entry) => entry.sources)
         .map((source) => [source.uri, source])
     ).values()
   );
 
   return {
-    matchedEntries: fallback,
+    matchedEntries,
     contextBlock,
     sources: uniqueSources
   };
