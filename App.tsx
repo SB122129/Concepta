@@ -9,6 +9,7 @@ import { TestSection } from './components/TestSection';
 import { TeachSection } from './components/TeachSection';
 import { PasteLinkSection } from './components/PasteLinkSection';
 import { MetricsSection } from './components/MetricsSection';
+import { ParticlesBackground } from './components/ParticlesBackground';
 import { AppTab, MainView, ChatSession, ChatMessage, GroundingSource, SourceItem, MistakeItem, QuizResult } from './types';
 import { generateExplanation, generateVisual, verifyText, generateSimulation, editVisual, editSimulation } from './services/geminiService';
 import { retrieveLearningEvidence } from './services/learningRetrievalService';
@@ -227,39 +228,29 @@ const App: React.FC = () => {
         else {
             setActiveView('learning');
             setActiveSubTab(AppTab.EXPLANATION);
-            
-            const [exp, vis, sim, ver] = await Promise.allSettled([
-                generateExplanation(groundedContext),
-                generateVisual(groundedContext),
-                generateSimulation(groundedContext),
-                verifyText(groundedContext)
-            ]);
 
-            if (exp.status === 'fulfilled' && exp.value.trim()) {
-                setExplanation(exp.value);
-            } else {
+            // Low-quota mode: only run explanation on send. Visual/Simulation/Verification remain on-demand actions.
+            try {
+                const exp = await generateExplanation(groundedContext);
+                if (exp.trim()) {
+                    setExplanation(exp);
+                } else {
+                    throw new Error('Empty explanation response');
+                }
+            } catch {
                 const fallbackExplanation = [
                     '# Executive Summary',
-                    'Explanation generation is temporarily unavailable. You can still use Verification, Quiz, and Simulation modes.',
+                    'Explanation generation is temporarily unavailable. To conserve API quota, Concepta now generates one mode at a time.',
                     '## Key Concepts',
-                    ...retrieval.matchedEntries.map((entry) => `- ${entry.topic}: ${entry.misconception}`),
+                    ...(retrieval.matchedEntries.length > 0
+                        ? retrieval.matchedEntries.map((entry) => `- ${entry.topic}: ${entry.misconception}`)
+                        : ['- Try a shorter prompt or retry after a short wait.']),
                     '## Detailed Analysis',
-                    'Try again in a few seconds, or reduce the input size for faster completion.',
+                    'Use Regenerate Visual, Regenerate Simulation, or Verify Now only when needed.',
                     '## Conclusion',
-                    'Concepta preserved your context and evidence links so you can continue studying.'
+                    'Your prompt is saved. You can continue in a quota-friendly, step-by-step workflow.'
                 ].join('\n');
                 setExplanation(fallbackExplanation);
-            }
-            if (vis.status === 'fulfilled') setVisualBase64(vis.value);
-            if (sim.status === 'fulfilled') setSimulationCode(sim.value);
-            if (ver.status === 'fulfilled') {
-                const mergedSources = Array.from(new Map([...retrieval.sources, ...ver.value.sources].map(s => [s.uri, s])).values());
-                setVerificationData({ explanation: ver.value.explanation, sources: mergedSources });
-            } else {
-                setVerificationData({
-                    explanation: `## Evidence-First Guidance\n\nNo live verification returned, but ${brandName} found relevant public learning evidence from trusted open resources for this topic.`,
-                    sources: retrieval.sources
-                });
             }
         }
     } catch (e) {
@@ -299,7 +290,7 @@ const App: React.FC = () => {
 
 
   const renderSubNav = () => (
-        <div className="bg-white/85 dark:bg-slate-950/85 border-b border-cyan-100 dark:border-cyan-900/40 px-4 sm:px-8 py-0 flex items-center justify-center gap-4 sm:gap-8 shadow-[inset_0_-1px_0_#cffafe] dark:shadow-[inset_0_-1px_0_#0c4a6e] transition-all overflow-x-auto backdrop-blur-md">
+        <div className="relative z-10 bg-white/85 dark:bg-slate-950/85 border-b border-cyan-100 dark:border-cyan-900/40 px-4 sm:px-8 py-0 flex items-center justify-center gap-4 sm:gap-8 shadow-[inset_0_-1px_0_#cffafe] dark:shadow-[inset_0_-1px_0_#0c4a6e] transition-all overflow-x-auto backdrop-blur-md">
         {[
             { id: AppTab.EXPLANATION, icon: 'ph-article', label: 'Explanation' },
             { id: AppTab.VISUALS, icon: 'ph-eye', label: 'Visualizing' },
@@ -341,6 +332,7 @@ const App: React.FC = () => {
         />
 
         <main className="flex-1 flex flex-col relative bg-transparent transition-colors duration-200 min-w-0">
+            <ParticlesBackground isDarkMode={isDarkMode} />
             <header className="h-16 border-b border-cyan-100/80 dark:border-cyan-900/40 flex items-center justify-between px-4 sm:px-8 bg-white/85 dark:bg-slate-950/85 z-10 shrink-0 backdrop-blur-md">
                 <div className="font-bold text-xl tracking-tight flex items-center gap-2 text-slate-900 dark:text-white">
                     <img src="/concepta-mark.svg" alt="Concepta" className="w-6 h-6 rounded-md" />
@@ -379,7 +371,7 @@ const App: React.FC = () => {
 
             {activeView === 'learning' && renderSubNav()}
 
-            <div className="flex-1 overflow-y-auto relative pb-32 scroll-smooth bg-transparent">
+            <div className="flex-1 overflow-y-auto relative z-10 pb-32 scroll-smooth bg-transparent">
                 
                 {activeView === 'learning' && (
                     <div className="h-full flex flex-col max-w-5xl mx-auto w-full pt-6 px-4 sm:px-8">
